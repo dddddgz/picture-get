@@ -20,4 +20,6 @@ Picture Get 用于获取某个网页上的内容。
 
 > 使用 `git clone` 可能会得到一个不准确的版本，或者是更新了一半的程序，这会加大您遇到 bug 的风险，且在描述 Picture Get 版本时遇到困难。所有可下载的程序文件都在 [Releases](https://github.com/dddddgz/picture-get/releases) 上。
 
-2. 在运行本程序前需要使用 pip 安装 PyQt 库。
+2. 在运行本程序前需要使用 pip 安装 PyQt6 库。
+
+> `pip install PyQt6`
