@@ -1,3 +1,8 @@
+---
+name: 异常反馈
+about: 反馈在使用 Picture Get 时遇到的 Bug。如果您用的是 git clone，则此 Issue 将不被理睬。
+---
+
 # 异常反馈
 
 ## Bug 描述
