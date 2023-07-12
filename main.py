@@ -4,8 +4,9 @@ import time
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from bs4 import BeautifulSoup
-from threading import Thread
 from pyperclip import copy
+from os import mkdir
+from ntpath import isdir
 
 form_class = uic.loadUiType("picture_get.ui")[0]
 
@@ -19,7 +20,7 @@ class PictureGet(QMainWindow, form_class):
         self.options = [self.s1, self.s2, self.s3, self.s4]
         self.cur_url = ""
         self.css_selector = ""
-        self.thread1 = None
+        self.flag = False
         self.frame2.setVisible(False)
         self.frame3.setVisible(False)
         self.label3.setVisible(False)
@@ -29,6 +30,8 @@ class PictureGet(QMainWindow, form_class):
         self.doac.clicked.connect(self.select)
         self.stop.clicked.connect(self.stopParse)
         self.copyua.clicked.connect(self.copyUserAgent)
+        if not isdir("images"):
+            mkdir("images")
     
     def confirmURL(self):
         url = self.url.text()
@@ -71,8 +74,7 @@ class PictureGet(QMainWindow, form_class):
             self.css_selector = "#content_views"
         elif self.s4.isChecked():
             self.css_selector = self.exp.text()
-        self.thread1 = Thread(target=self.getPage)
-        self.thread1.start()
+        self.getPage()
 
     def getPage(self):
         response = requests.get(self.url.text(), headers=self.headers)
@@ -83,6 +85,8 @@ class PictureGet(QMainWindow, form_class):
             return
         images = part.findAll("img")
         for i, image in enumerate(images):
+            if self.flag:
+                break
             try:
                 url = image["src"]
             except KeyError:
@@ -92,14 +96,18 @@ class PictureGet(QMainWindow, form_class):
             elif not url.startswith("https://"):
                 url = soup.base["href"] + url
             img = requests.get(url, headers=self.headers)
-            with open(f"{i}.png", "wb") as f:
+            with open(f"images/{i + 1}.png", "wb") as f:
                 f.write(img.content)
-            self.label5.setText(f"共{len(images)}个，已下载{i + 1}")
+            self.label5.setText(f"共{len(images)}个，已下载{i + 1}个")
             self.dpg.setValue(int((i + 1) / len(images) * 100))
-            time.sleep(1)
+            QApplication.processEvents()
+            time.sleep(0.5)
+        self.stopParse()
     
     def stopParse(self):
         self.flag = True
+        self.stop.setText("已停止")
+        self.stop.setEnabled(False)
     
     def copyUserAgent(self):
         copy(self.headers["User-Agent"])
